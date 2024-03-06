@@ -1,12 +1,5 @@
 Hello world
-
-configs = {
-   "fs.adl.oauth2.access.token.provider.type": "CustomAccessTokenProvider",
-   "fs.adl.oauth2.access.token.custom.provider": spark.conf.get("spark.databricks.passthrough.adls.tokenProviderClassName")
- }
-
- # Optionally, you can add <directory-name> to the source URI of your mount point.
- dbutils.fs.mount(
-   source = "adl://<storage-account-name>.azuredatalakestore.net/<directory-name>",
-   mount_point = "/mnt/<mount-name>",
-   extra_configs = configs)
+dbutils.fs.mount(
+    source='wasbs://<container_name>@<storage_accountname>.blob.core.windows.net/',
+    mount_point='/mnt/bronze',
+    extra_configs={'fs.azure.account.key.<storage_accountname>.blob.core.windows.net':'account_key'}
