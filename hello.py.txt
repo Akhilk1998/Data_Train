@@ -1,1 +1,12 @@
 Hello world
+
+configs = {
+   "fs.adl.oauth2.access.token.provider.type": "CustomAccessTokenProvider",
+   "fs.adl.oauth2.access.token.custom.provider": spark.conf.get("spark.databricks.passthrough.adls.tokenProviderClassName")
+ }
+
+ # Optionally, you can add <directory-name> to the source URI of your mount point.
+ dbutils.fs.mount(
+   source = "adl://<storage-account-name>.azuredatalakestore.net/<directory-name>",
+   mount_point = "/mnt/<mount-name>",
+   extra_configs = configs)
