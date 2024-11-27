@@ -1,0 +1,62 @@
+{
+	"name": "appendvariable",
+	"properties": {
+		"activities": [
+			{
+				"name": "Append marks",
+				"type": "AppendVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "marks",
+					"value": {
+						"value": "@int('90')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set temp array",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Append marks",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "temp",
+					"value": {
+						"value": "@variables('marks')",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"marks": {
+				"type": "Array",
+				"defaultValue": [
+					80,
+					90,
+					60,
+					75
+				]
+			},
+			"temp": {
+				"type": "Array",
+				"defaultValue": []
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-15T08:42:57Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

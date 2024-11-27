@@ -1,0 +1,53 @@
+{
+	"name": "script activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "add code",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_sqlserver",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "@concat('select ',variables('columns'),' from ',variables('tablename'),' where department=''',variables('department'),'''')",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"variables": {
+			"tablename": {
+				"type": "String",
+				"defaultValue": "employees"
+			},
+			"columns": {
+				"type": "String",
+				"defaultValue": "firstname,age,department"
+			},
+			"department": {
+				"type": "String",
+				"defaultValue": "IT"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-18T13:08:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

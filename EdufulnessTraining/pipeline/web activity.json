@@ -1,0 +1,100 @@
+{
+	"name": "web activity",
+	"properties": {
+		"activities": [
+			{
+				"name": "sending email",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Lookup email realtime",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-23.centralindia.logic.azure.com:443/workflows/c1fe4b0b77924fa78ddc5c69b60ae990/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=PrBca7V23LFQFhnlk-s9cJYtFiPHCJcpZ-swJs5lvM8",
+					"body": {
+						"value": "@concat('{\n\"To\":\"',activity('Lookup email realtime').output.firstRow.toadd,'\",\n\"Sub\":\"',activity('Lookup email realtime').output.firstRow.subject,'\",\n\"Body\":\"',activity('Lookup email realtime').output.firstRow.body,'\"\n}')\n\n\n\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Lookup email realtime",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderStoredProcedureName": "[efn].[EmailNotificationADF]",
+						"storedProcedureParameters": {
+							"ADFname": {
+								"type": "String",
+								"value": null
+							},
+							"EndTime": {
+								"type": "Datetime",
+								"value": null
+							},
+							"ErrorDescription": {
+								"type": "String",
+								"value": null
+							},
+							"logKey": {
+								"type": "Int32",
+								"value": null
+							},
+							"PipelineName": {
+								"type": "String",
+								"value": null
+							},
+							"RunId": {
+								"type": "String",
+								"value": null
+							},
+							"Starttime": {
+								"type": "Datetime",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							},
+							"To": {
+								"type": "String",
+								"value": "akhilkunnathodi@gmail.com"
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_sprealone",
+						"type": "DatasetReference"
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-11-26T15:32:00Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

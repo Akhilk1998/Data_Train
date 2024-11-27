@@ -1,0 +1,136 @@
+{
+	"name": "migrating from on prem sol2 table",
+	"properties": {
+		"activities": [
+			{
+				"name": "fetching file name",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('Tablelist')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Copy from onprem to adls",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"sqlReaderQuery": {
+										"value": "@concat('SELECT ',item().sourcecolumns,' FROM ',item().SourceSchema,'.',item().SourceTableName)",
+										"type": "Expression"
+									},
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "SqlServerSink",
+									"preCopyScript": {
+										"value": "@{concat('truncate table ',item().Sinkschema,'.',item().SinkFileName)}",
+										"type": "Expression"
+									},
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate"
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "sqlsource_copy1",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_table",
+									"type": "DatasetReference",
+									"parameters": {
+										"sinkschema": {
+											"value": "@item().Sinkschema",
+											"type": "Expression"
+										},
+										"sinktablename": {
+											"value": "@item().SinkFileName",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"Tablelist": {
+				"type": "Array",
+				"defaultValue": [
+					{
+						"SourceSchema": "mig",
+						"SourceTableName": "Customers",
+						"sourcecolumns": "CustomerID, CustomerName, ContactNumber, Email",
+						"Sourcecondition": "",
+						"Sinkschema": "sink",
+						"SinkFileName": "Customers"
+					},
+					{
+						"SourceSchema": "mig",
+						"SourceTableName": "Products",
+						"sourcecolumns": "ProductID, ProductName, Price, Stock",
+						"Sourcecondition": "",
+						"Sinkschema": "sink",
+						"SinkFileName": "Products"
+					},
+					{
+						"SourceSchema": "mig",
+						"SourceTableName": "Orders",
+						"sourcecolumns": "OrderID, CustomerID, OrderDate, TotalAmount",
+						"Sourcecondition": "",
+						"Sinkschema": "sink",
+						"SinkFileName": "Orders"
+					},
+					{
+						"SourceSchema": "mig",
+						"SourceTableName": "OrdersItems",
+						"sourcecolumns": "OrderItemID, OrderID, ProductID, Quantity",
+						"Sourcecondition": "",
+						"Sinkschema": "sink",
+						"SinkFileName": "OrdersItems"
+					},
+					{
+						"SourceSchema": "mig",
+						"SourceTableName": "Inventory",
+						"sourcecolumns": "InventoryID, ProductID, Location, Stock",
+						"Sourcecondition": "",
+						"Sinkschema": "sink",
+						"SinkFileName": "Inventory"
+					}
+				]
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-22T11:09:43Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

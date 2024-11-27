@@ -1,0 +1,9 @@
+{
+	"name": "adf-edfns-training",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "0b4d8d85-3d74-4c43-b786-8d2c8afc7877",
+		"tenantId": "b53d654d-26f8-45d4-9829-2b793d8c533b"
+	}
+}

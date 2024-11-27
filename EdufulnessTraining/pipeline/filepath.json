@@ -1,0 +1,32 @@
+{
+	"name": "filepath",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "filepath",
+					"value": {
+						"value": "@concat(substring(utcNow(),0,4),'/',substring(utcNow(),5,2),'/',substring(utcNow(),8,2))",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"filepath": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-11-20T16:40:44Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

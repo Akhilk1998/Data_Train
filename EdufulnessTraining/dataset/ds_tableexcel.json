@@ -1,0 +1,51 @@
+{
+	"name": "ds_tableexcel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "tablelist.xlsx",
+				"fileSystem": "table"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "slno",
+				"type": "String"
+			},
+			{
+				"name": "sourceschema",
+				"type": "String"
+			},
+			{
+				"name": "sourcetablename",
+				"type": "String"
+			},
+			{
+				"name": "sourcecolumns",
+				"type": "String"
+			},
+			{
+				"name": "sinkschema",
+				"type": "String"
+			},
+			{
+				"name": "sinkfilename",
+				"type": "String"
+			},
+			{
+				"name": "status",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
