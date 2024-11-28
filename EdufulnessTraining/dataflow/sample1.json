@@ -21,7 +21,18 @@
 			],
 			"sinks": [
 				{
+					"dataset": {
+						"referenceName": "ds_destination",
+						"type": "DatasetReference"
+					},
 					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_destination",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -74,12 +85,11 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
-				"source1 derive(percentage = (mark/100)*100\r",
-				") ~> totalmark",
+				"source1 derive(percentage = (mark/100)*100) ~> totalmark",
 				"surrogateKey1 rank(asc(mark, true),",
 				"     output(Mark as long),",
 				"     dense: true) ~> TopRank",
-				"TopRank filter(source1@mark>=90) ~> filtemark",
+				"TopRank filter(TopRank@Mark>=90) ~> filtemark",
 				"filtemark sort(asc({Roll NO}, true),",
 				"     partitionLevel: true) ~> sort1",
 				"totalmark split(mark<90,",
@@ -91,8 +101,16 @@
 				"     stepValue: 1L) ~> surrogateKey1",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     partitionFileNames:['selectout'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1",
+				"sort1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     partitionFileNames:['filtersortout'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink2"
 			]
 		}
 	}
