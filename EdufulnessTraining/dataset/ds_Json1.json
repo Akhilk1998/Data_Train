@@ -1,0 +1,35 @@
+{
+	"name": "ds_Json1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_akhil_blob",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "jsonfile.json",
+				"container": "source"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"sno": {
+					"type": "integer"
+				},
+				"Class": {
+					"type": "string"
+				},
+				"Field": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}
+}

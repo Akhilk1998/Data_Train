@@ -1,0 +1,108 @@
+{
+	"name": "prod",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_prod1",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_product",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_product12",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_product12",
+						"type": "DatasetReference"
+					},
+					"name": "sink3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "split1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Column_1 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"split1@startingwithcolumn derive(temp1 = split(Column_1,';')) ~> derivedColumn1",
+				"derivedColumn1 derive(temp2 = split(temp1[2],':')) ~> derivedColumn2",
+				"derivedColumn2 derive(product = temp2[1],",
+				"          Description = temp2[2],",
+				"          Area = temp1[3]) ~> derivedColumn3",
+				"derivedColumn3 select(mapColumn(",
+				"          product,",
+				"          Description,",
+				"          Area",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1 split(startsWith(Column_1,';'),",
+				"     startsWith(Column_1,':'),",
+				"     !startsWith(Column_1, ';') && !startsWith(Column_1, ':'),",
+				"     disjoint: true) ~> split1@(startingwithcolumn, startwithdot, nosymbol)",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          productid as string,",
+				"          Description as string,",
+				"          area as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     mapColumn(",
+				"          productid = product,",
+				"          Description,",
+				"          area = Area",
+				"     )) ~> sink1",
+				"split1@startwithdot sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink2",
+				"split1@nosymbol sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink3"
+			]
+		}
+	}
+}
