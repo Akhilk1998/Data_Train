@@ -13,6 +13,667 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/migrating from on prem sol1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "fetching file name",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Tablelist')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy from onprem to adls",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "sqlsource",
+											"type": "DatasetReference",
+											"parameters": {
+												"Tablename": {
+													"value": "@item().SourceTableName",
+													"type": "Expression"
+												},
+												"Schemaname": {
+													"value": "@item().SourceSchema",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_adls",
+											"type": "DatasetReference",
+											"parameters": {
+												"filename": {
+													"value": "@item().SinkFileName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Tablelist": {
+						"type": "Array",
+						"defaultValue": [
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Customers",
+								"SinkFileName": "Raw_Customers"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Products",
+								"SinkFileName": "Raw_Products"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Orders",
+								"SinkFileName": "Raw_Orders"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "OrdersItems",
+								"SinkFileName": "Raw_OrdersItems"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Inventory",
+								"SinkFileName": "Raw_Inventory"
+							}
+						]
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-11-22T11:09:43Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/migrating from on prem sol2 table')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "fetching file name",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('Tablelist')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy from onprem to adls",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT ',item().sourcecolumns,' FROM ',item().SourceSchema,'.',item().SourceTableName)",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "SqlServerSink",
+											"preCopyScript": {
+												"value": "@{concat('truncate table ',item().Sinkschema,'.',item().SinkFileName)}",
+												"type": "Expression"
+											},
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "sqlsource_copy1",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_table",
+											"type": "DatasetReference",
+											"parameters": {
+												"sinkschema": {
+													"value": "@item().Sinkschema",
+													"type": "Expression"
+												},
+												"sinktablename": {
+													"value": "@item().SinkFileName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"Tablelist": {
+						"type": "Array",
+						"defaultValue": [
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Customers",
+								"sourcecolumns": "CustomerID, CustomerName, ContactNumber, Email",
+								"Sourcecondition": "",
+								"Sinkschema": "sink",
+								"SinkFileName": "Customers"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Products",
+								"sourcecolumns": "ProductID, ProductName, Price, Stock",
+								"Sourcecondition": "",
+								"Sinkschema": "sink",
+								"SinkFileName": "Products"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Orders",
+								"sourcecolumns": "OrderID, CustomerID, OrderDate, TotalAmount",
+								"Sourcecondition": "",
+								"Sinkschema": "sink",
+								"SinkFileName": "Orders"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "OrdersItems",
+								"sourcecolumns": "OrderItemID, OrderID, ProductID, Quantity",
+								"Sourcecondition": "",
+								"Sinkschema": "sink",
+								"SinkFileName": "OrdersItems"
+							},
+							{
+								"SourceSchema": "mig",
+								"SourceTableName": "Inventory",
+								"sourcecolumns": "InventoryID, ProductID, Location, Stock",
+								"Sourcecondition": "",
+								"Sinkschema": "sink",
+								"SinkFileName": "Inventory"
+							}
+						]
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-11-22T11:09:43Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/migrating from on prem sol3 table')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "fetching file name",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Filter condition status",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Filter condition status').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy from onprem to adls",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "SqlServerSource",
+											"sqlReaderQuery": {
+												"value": "@concat('SELECT ',item().sourcecolumns,' FROM ',item().SourceSchema,'.',item().SourceTableName)",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "SqlServerSink",
+											"preCopyScript": {
+												"value": "@{concat('truncate table ',item().Sinkschema,'.',item().SinkFileName)}",
+												"type": "Expression"
+											},
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate"
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "sqlsource_copy1",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_table",
+											"type": "DatasetReference",
+											"parameters": {
+												"sinkschema": {
+													"value": "@item().Sinkschema",
+													"type": "Expression"
+												},
+												"sinktablename": {
+													"value": "@item().SinkFileName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "Lookuptable name from excel",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"dataset": {
+								"referenceName": "ds_tableexcel",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Filter condition status",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Lookuptable name from excel",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Lookuptable name from excel').output.value",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@equals(item().status,'1')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-11-22T17:27:28Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/web activity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "sending email",
+						"type": "WebActivity",
+						"dependsOn": [
+							{
+								"activity": "Lookup email realtime",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"method": "POST",
+							"headers": {},
+							"url": "https://prod-23.centralindia.logic.azure.com:443/workflows/c1fe4b0b77924fa78ddc5c69b60ae990/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=PrBca7V23LFQFhnlk-s9cJYtFiPHCJcpZ-swJs5lvM8",
+							"body": {
+								"value": "@concat('{\n\"To\":\"',activity('Lookup email realtime').output.firstRow.toadd,'\",\n\"Sub\":\"',activity('Lookup email realtime').output.firstRow.subject,'\",\n\"Body\":\"',activity('Lookup email realtime').output.firstRow.body,'\"\n}')\n\n\n\n",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Lookup email realtime",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderStoredProcedureName": "[[efn].[EmailNotificationADF]",
+								"storedProcedureParameters": {
+									"ADFname": {
+										"type": "String",
+										"value": null
+									},
+									"EndTime": {
+										"type": "Datetime",
+										"value": null
+									},
+									"ErrorDescription": {
+										"type": "String",
+										"value": null
+									},
+									"logKey": {
+										"type": "Int32",
+										"value": null
+									},
+									"PipelineName": {
+										"type": "String",
+										"value": null
+									},
+									"RunId": {
+										"type": "String",
+										"value": null
+									},
+									"Starttime": {
+										"type": "Datetime",
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										}
+									},
+									"To": {
+										"type": "String",
+										"value": "akhilkunnathodi@gmail.com"
+									}
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_sprealone",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-11-26T15:32:00Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/flattenTransform')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_Json1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_destination",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flatten1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          sno as integer,",
+						"          Class as string,",
+						"          Field as string[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> source1",
+						"source1 foldDown(unroll(Field),",
+						"     mapColumn(",
+						"          sno,",
+						"          Class,",
+						"          Field",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flatten1",
+						"flatten1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/join')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_neworder",
+								"type": "DatasetReference"
+							},
+							"name": "order"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_orderitem",
+								"type": "DatasetReference"
+							},
+							"name": "orderitems"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_destination",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "exists1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          OrderID as integer,",
+						"          CustomerID as integer,",
+						"          OrderDate as date,",
+						"          TotalAmount as decimal(10,2)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> order",
+						"source(output(",
+						"          OrderItemID as integer,",
+						"          OrderID as integer,",
+						"          ProductID as integer,",
+						"          Quantity as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> orderitems",
+						"order, orderitems exists(order@OrderID == orderitems@OrderID,",
+						"     negate:true,",
+						"     broadcast: 'auto')~> exists1",
+						"exists1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     partitionFileNames:['joinoutput.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pivotTransformation')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
@@ -65,6 +726,117 @@
 						"     validateSchema: false,",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true) ~> pivotoutput"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/prod')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_prod1",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_product",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_product12",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_product12",
+								"type": "DatasetReference"
+							},
+							"name": "sink3"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "select1"
+						},
+						{
+							"name": "split1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Column_1 as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source1",
+						"split1@startingwithcolumn derive(temp1 = split(Column_1,';')) ~> derivedColumn1",
+						"derivedColumn1 derive(temp2 = split(temp1[2],':')) ~> derivedColumn2",
+						"derivedColumn2 derive(product = temp2[1],",
+						"          Description = temp2[2],",
+						"          Area = temp1[3]) ~> derivedColumn3",
+						"derivedColumn3 select(mapColumn(",
+						"          product,",
+						"          Description,",
+						"          Area",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"source1 split(startsWith(Column_1,';'),",
+						"     startsWith(Column_1,':'),",
+						"     !startsWith(Column_1, ';') && !startsWith(Column_1, ':'),",
+						"     disjoint: true) ~> split1@(startingwithcolumn, startwithdot, nosymbol)",
+						"select1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          productid as string,",
+						"          Description as string,",
+						"          area as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     mapColumn(",
+						"          productid = product,",
+						"          Description,",
+						"          area = Area",
+						"     )) ~> sink1",
+						"split1@startwithdot sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink2",
+						"split1@nosymbol sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> sink3"
 					]
 				}
 			},
@@ -306,6 +1078,54 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "prod",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source1": {},
+									"sink1": {},
+									"sink2": {},
+									"sink3": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/prod')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/pivotRun')]",
