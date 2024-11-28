@@ -1,0 +1,55 @@
+{
+	"name": "pivotTransformation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_employee",
+						"type": "DatasetReference"
+					},
+					"name": "sourcepivot"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_destination",
+						"type": "DatasetReference"
+					},
+					"name": "pivotoutput"
+				}
+			],
+			"transformations": [
+				{
+					"name": "pivot1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          empid as string,",
+				"          ename as string,",
+				"          job as string,",
+				"          mgr as string,",
+				"          hiredate as string,",
+				"          sal as string,",
+				"          comm as string,",
+				"          deptno as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> sourcepivot",
+				"sourcepivot pivot(groupBy(deptno),",
+				"     pivotBy(job),",
+				"     {} = count(empid),",
+				"     columnNaming: '$N$V',",
+				"     lateral: true) ~> pivot1",
+				"pivot1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> pivotoutput"
+			]
+		}
+	}
+}

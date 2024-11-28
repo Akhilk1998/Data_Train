@@ -1,5 +1,5 @@
 {
-	"name": "ds_destination",
+	"name": "ds_sample",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_akhil_blob",
@@ -10,15 +10,31 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "pivotout.csv",
-				"container": "destination"
+				"fileName": "sample.csv",
+				"container": "source"
 			},
 			"columnDelimiter": ",",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
-		"schema": []
-	},
-	"type": "Microsoft.DataFactory/factories/datasets"
+		"schema": [
+			{
+				"name": "Roll NO",
+				"type": "String"
+			},
+			{
+				"name": "Name",
+				"type": "String"
+			},
+			{
+				"name": "class",
+				"type": "String"
+			},
+			{
+				"name": "mark",
+				"type": "String"
+			}
+		]
+	}
 }

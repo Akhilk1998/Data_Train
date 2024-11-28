@@ -1,0 +1,99 @@
+{
+	"name": "sample1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sample",
+						"type": "DatasetReference"
+					},
+					"name": "Studentdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sample",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "select1"
+				},
+				{
+					"name": "totalmark"
+				},
+				{
+					"name": "TopRank"
+				},
+				{
+					"name": "filtemark"
+				},
+				{
+					"name": "sort1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "surrogateKey1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Roll NO} as string,",
+				"          Name as string,",
+				"          class as string,",
+				"          mark as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Studentdata",
+				"source(output(",
+				"          {Roll NO} as string,",
+				"          Name as string,",
+				"          class as string,",
+				"          mark as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"Studentdata select(mapColumn(",
+				"          {Roll No} = {Roll NO},",
+				"          Name,",
+				"          Mark = mark,",
+				"          Class = class",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"source1 derive(percentage = (mark/100)*100\r",
+				") ~> totalmark",
+				"surrogateKey1 rank(asc(mark, true),",
+				"     output(Mark as long),",
+				"     dense: true) ~> TopRank",
+				"TopRank filter(source1@mark>=90) ~> filtemark",
+				"filtemark sort(asc({Roll NO}, true),",
+				"     partitionLevel: true) ~> sort1",
+				"totalmark split(mark<90,",
+				"     mark>90,",
+				"     mark==90,",
+				"     disjoint: true) ~> split1@(markless90, markgreater90, mark90)",
+				"split1@markless90 keyGenerate(output(rollno as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sink1"
+			]
+		}
+	}
+}

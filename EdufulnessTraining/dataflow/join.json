@@ -1,0 +1,55 @@
+{
+	"name": "join",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_neworder",
+						"type": "DatasetReference"
+					},
+					"name": "order"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_orderitem",
+						"type": "DatasetReference"
+					},
+					"name": "orderitems"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "exists1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          OrderID as integer,",
+				"          CustomerID as integer,",
+				"          OrderDate as date,",
+				"          TotalAmount as decimal(10,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> order",
+				"source(output(",
+				"          OrderItemID as integer,",
+				"          OrderID as integer,",
+				"          ProductID as integer,",
+				"          Quantity as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> orderitems",
+				"order, orderitems exists(order@OrderID == orderitems@OrderID,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> exists1"
+			]
+		}
+	}
+}
