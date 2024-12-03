@@ -1,0 +1,16 @@
+{
+	"name": "ds_migrationlist",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlserver",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "stg",
+			"table": "MigrationTable"
+		}
+	}
+}

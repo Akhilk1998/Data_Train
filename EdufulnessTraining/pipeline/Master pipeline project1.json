@@ -1,0 +1,24 @@
+{
+	"name": "Master pipeline project1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Hydration file",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "project1_1 hydrationfile movement",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": []
+	}
+}
