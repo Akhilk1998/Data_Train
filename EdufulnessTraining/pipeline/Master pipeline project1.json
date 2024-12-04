@@ -17,6 +17,52 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "Full load from onprem",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Hydration file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "project1_2_fullload_from onprem",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "incrementa load",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Hydration file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "project1_2_Incrementalload_from onprem_copy1",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"annotations": []
