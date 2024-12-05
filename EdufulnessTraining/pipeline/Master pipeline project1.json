@@ -63,6 +63,58 @@
 					},
 					"waitOnCompletion": true
 				}
+			},
+			{
+				"name": "merging datalake",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Full load from onprem",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "incrementa load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "merging with datalke",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Data analysis",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "merging datalake",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "db aggregation",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
 			}
 		],
 		"annotations": []

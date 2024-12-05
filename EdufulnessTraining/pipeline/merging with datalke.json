@@ -1,0 +1,28 @@
+{
+	"name": "merging with datalke",
+	"properties": {
+		"activities": [
+			{
+				"name": "mering withdata lake",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/alanjacob1998@outlook.com/project1/merging staging to delta"
+				},
+				"linkedServiceName": {
+					"referenceName": "ls_AzureDatabricks1",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
