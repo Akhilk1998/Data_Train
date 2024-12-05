@@ -5,17 +5,29 @@
 		"factoryName": {
 			"value": "adf-edfns-training"
 		},
+		"ls_AzureDatabricks1_accessToken": {
+			"value": ""
+		},
 		"ls_adls_accountKey": {
 			"value": ""
 		},
 		"ls_akhil_blob_connectionString": {
 			"value": ""
 		},
+		"ls_project_adls_accountKey": {
+			"value": ""
+		},
 		"ls_sqlserver_password": {
 			"value": ""
 		},
+		"ls_AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"value": "1129-141939-zbgp7nit"
+		},
 		"ls_adls_properties_typeProperties_url": {
 			"value": "https://adlsakhil.dfs.core.windows.net/"
+		},
+		"ls_project_adls_properties_typeProperties_url": {
+			"value": "https://project1edf.dfs.core.windows.net/"
 		},
 		"ls_sqlserver_properties_typeProperties_server": {
 			"value": "akhilserver1.database.windows.net"
