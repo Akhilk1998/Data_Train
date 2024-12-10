@@ -1,0 +1,56 @@
+{
+	"name": "ds_metadata_file_prj2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_prj2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "project2"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Hydrationfile.csv",
+				"folderPath": "metadata",
+				"fileSystem": "cont1"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "tableid",
+				"type": "String"
+			},
+			{
+				"name": "schema",
+				"type": "String"
+			},
+			{
+				"name": "tablename",
+				"type": "String"
+			},
+			{
+				"name": "query",
+				"type": "String"
+			},
+			{
+				"name": "loadtype",
+				"type": "String"
+			},
+			{
+				"name": "inc_watermark",
+				"type": "String"
+			},
+			{
+				"name": "status",
+				"type": "String"
+			}
+		]
+	}
+}

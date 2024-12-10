@@ -1,0 +1,26 @@
+{
+	"name": "ds_metadata_prj2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_prj2",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "project2"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "metadata",
+				"fileSystem": "cont1"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}

@@ -1,0 +1,49 @@
+{
+	"name": "ds_sql_tablelist_prj2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlserver",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "project2"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "tableid",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "schemaa",
+				"type": "varchar"
+			},
+			{
+				"name": "tablename",
+				"type": "varchar"
+			},
+			{
+				"name": "query",
+				"type": "varchar"
+			},
+			{
+				"name": "loadtype",
+				"type": "varchar"
+			},
+			{
+				"name": "inc_watermark",
+				"type": "varchar"
+			},
+			{
+				"name": "status",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "prj2",
+			"table": "tableList"
+		}
+	}
+}
