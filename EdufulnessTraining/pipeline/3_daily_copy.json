@@ -177,13 +177,14 @@
 									"partitionOption": "None"
 								},
 								"sink": {
-									"type": "ParquetSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+									"type": "SqlServerSink",
+									"preCopyScript": {
+										"value": "@concat('truncate table efn.',item().tablename)",
+										"type": "Expression"
 									},
-									"formatSettings": {
-										"type": "ParquetWriteSettings"
-									}
+									"writeBehavior": "insert",
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate"
 								},
 								"enableStaging": false,
 								"translator": {
@@ -213,9 +214,13 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "ds_adls_parquet_full_prj2",
+									"referenceName": "ds_efndatabase",
 									"type": "DatasetReference",
 									"parameters": {
+										"schema": {
+											"value": "efn",
+											"type": "Expression"
+										},
 										"tablename": {
 											"value": "@item().tablename",
 											"type": "Expression"
