@@ -11,6 +11,9 @@
 		"ls_adls_accountKey": {
 			"value": ""
 		},
+		"ls_adls_prj2_accountKey": {
+			"value": ""
+		},
 		"ls_akhil_blob_connectionString": {
 			"value": ""
 		},
@@ -25,6 +28,9 @@
 		},
 		"ls_adls_properties_typeProperties_url": {
 			"value": "https://adlsakhil.dfs.core.windows.net/"
+		},
+		"ls_adls_prj2_properties_typeProperties_url": {
+			"value": "https://adlsproject2.dfs.core.windows.net/"
 		},
 		"ls_project_adls_properties_typeProperties_url": {
 			"value": "https://project1edf.dfs.core.windows.net/"
