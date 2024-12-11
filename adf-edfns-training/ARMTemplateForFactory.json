@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ls_akhil_blob'"
 		},
+		"ls_db_prj2_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_db_prj2'"
+		},
 		"ls_project_adls_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_project_adls'"
@@ -42,6 +46,18 @@
 		"ls_adls_prj2_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsproject2.dfs.core.windows.net/"
+		},
+		"ls_db_prj2_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "akhilserver1.database.windows.net"
+		},
+		"ls_db_prj2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "akhilsqldbprj2"
+		},
+		"ls_db_prj2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminlogin"
 		},
 		"ls_project_adls_properties_typeProperties_url": {
 			"type": "string",
@@ -616,13 +632,14 @@
 											"partitionOption": "None"
 										},
 										"sink": {
-											"type": "ParquetSink",
-											"storeSettings": {
-												"type": "AzureBlobFSWriteSettings"
+											"type": "SqlServerSink",
+											"preCopyScript": {
+												"value": "@concat('truncate table efn.',item().tablename)",
+												"type": "Expression"
 											},
-											"formatSettings": {
-												"type": "ParquetWriteSettings"
-											}
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate"
 										},
 										"enableStaging": false,
 										"translator": {
@@ -652,9 +669,13 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "ds_adls_parquet_full_prj2",
+											"referenceName": "ds_efndatabase",
 											"type": "DatasetReference",
 											"parameters": {
+												"schema": {
+													"value": "efn",
+													"type": "Expression"
+												},
 												"tablename": {
 													"value": "@item().tablename",
 													"type": "Expression"
@@ -699,7 +720,8 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_sql_tablelist_prj2')]",
 				"[concat(variables('factoryId'), '/datasets/ds_oprem_table_parameter_prj2')]",
-				"[concat(variables('factoryId'), '/datasets/ds_adls_parquet_full_prj2')]"
+				"[concat(variables('factoryId'), '/datasets/ds_adls_parquet_full_prj2')]",
+				"[concat(variables('factoryId'), '/datasets/ds_efndatabase')]"
 			]
 		},
 		{
@@ -3542,6 +3564,41 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_efndatabase')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_db_prj2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schema": {
+						"type": "string"
+					},
+					"tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tablename",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_db_prj2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_employee')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4918,6 +4975,28 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('ls_akhil_blob_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_db_prj2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('ls_db_prj2_properties_typeProperties_server')]",
+					"database": "[parameters('ls_db_prj2_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_db_prj2_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_db_prj2_password')]"
+					}
 				}
 			},
 			"dependsOn": []

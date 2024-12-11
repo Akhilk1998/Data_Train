@@ -23,6 +23,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'ls_akhil_blob'"
 		},
+		"ls_db_prj2_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_db_prj2'"
+		},
 		"ls_project_adls_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_project_adls'"
@@ -42,6 +46,18 @@
 		"ls_adls_prj2_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsproject2.dfs.core.windows.net/"
+		},
+		"ls_db_prj2_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "akhilserver1.database.windows.net"
+		},
+		"ls_db_prj2_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "akhilsqldbprj2"
+		},
+		"ls_db_prj2_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminlogin"
 		},
 		"ls_project_adls_properties_typeProperties_url": {
 			"type": "string",
@@ -411,6 +427,28 @@
 				"type": "AzureBlobStorage",
 				"typeProperties": {
 					"connectionString": "[parameters('ls_akhil_blob_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_db_prj2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('ls_db_prj2_properties_typeProperties_server')]",
+					"database": "[parameters('ls_db_prj2_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_db_prj2_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_db_prj2_password')]"
+					}
 				}
 			},
 			"dependsOn": []
@@ -845,34 +883,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_project_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_destination')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_akhil_blob",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobStorageLocation",
-						"fileName": "pivotout.csv",
-						"container": "destination"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_akhil_blob')]"
 			]
 		}
 	]
