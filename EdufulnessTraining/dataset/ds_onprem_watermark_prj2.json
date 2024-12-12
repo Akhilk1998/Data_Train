@@ -1,0 +1,19 @@
+{
+	"name": "ds_onprem_watermark_prj2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqlserver",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "project2"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "prj2",
+			"table": "watermarktable"
+		}
+	}
+}
